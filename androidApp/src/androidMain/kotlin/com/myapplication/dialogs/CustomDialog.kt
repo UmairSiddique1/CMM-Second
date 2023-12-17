@@ -1,6 +1,7 @@
 package com.myapplication.dialogs
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import com.myapplication.R
 
 
@@ -11,6 +12,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -39,6 +43,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogWindowProvider
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import com.myapplication.screens.CameraScreen
 
 object CustomDialog {
 
@@ -49,9 +56,6 @@ object CustomDialog {
             mutableStateOf<Uri?>(null)
         }
 
-        val bitmap =  remember {
-            mutableStateOf<Bitmap?>(null)
-        }
         val launcher = rememberLauncherForActivityResult(contract =
         ActivityResultContracts.GetContent()) { uri: Uri? ->
             imageUri.value = uri
@@ -59,15 +63,18 @@ object CustomDialog {
         Card(
             shape = RoundedCornerShape(16.dp),
             modifier = Modifier
-                .fillMaxWidth().padding(horizontal = 10.dp).padding(vertical = 5.dp).clickable {
-                    if(text.isNotEmpty() && text == "Camera"){
-
-                    } else if(text.isNotEmpty() && text == "Gallery"){
+                .fillMaxWidth().padding(horizontal = 10.dp).padding(vertical = 5.dp).pointerInput(Unit) {
+                detectTapGestures {
+                    if (text.isNotEmpty() && text == "Camera") {
+                        context.startActivity(Intent(context, CameraScreen::class.java))
+                    } else if (text.isNotEmpty() && text == "Gallery") {
                         launcher.launch("image/*")
                     }
-                    onDismiss() },
+                    onDismiss()
+                }
+            },
             elevation = 8.dp,
-            backgroundColor =color // #F1E6FF color
+            backgroundColor =color
         ) {
             // Add padding inside the Card
             Column(
@@ -76,7 +83,6 @@ object CustomDialog {
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center
             ) {
-
                 // Camera icon and text aligned together
                 Box(contentAlignment = Alignment.Center){
                     Row( modifier = Modifier.fillMaxWidth(),
@@ -84,7 +90,6 @@ object CustomDialog {
                         horizontalArrangement = Arrangement.Center // Adjust the spacing as needed
                     ) {
                         // Increase the size of the icon by adjusting the size parameter
-
                         Icon(
                             painter = painterResource(id = iconRes),
                             contentDescription = null,
@@ -143,6 +148,4 @@ if(showDialog){
         }
     }
     }
-
-
 }

@@ -1,9 +1,19 @@
 package com.myapplication.screens
 
-
 import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,6 +27,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.ExperimentalMaterialApi
@@ -30,13 +41,20 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -49,11 +67,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.myapplication.R
+import com.myapplication.Utils
 import com.myapplication.dialogs.CustomDialog.CustomAlertDialog
-
-
-object HomeScreen {
+import kotlinx.coroutines.delay
+class HomeScreen:Screen {
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     @Composable
     fun BottomNav() {
@@ -61,11 +82,11 @@ object HomeScreen {
         val selectedScreen = remember { mutableStateOf(screens.first()) }
         val context= LocalContext.current
         val showCustomDialog= remember { mutableStateOf(false) }
+
         // Create a function to show a toast
         fun showToast(screen: String) {
             Toast.makeText(context, "Clicked on $screen", Toast.LENGTH_SHORT).show()
         }
-
 
         Scaffold(
             bottomBar = {
@@ -77,11 +98,16 @@ object HomeScreen {
                         BottomNavigationItem(
                             icon = {
                                 val iconSize = if (screen.isEmpty()) 58.dp else 20.dp
-                                Image(
-                                    painterResource(id = getIconForScreen(screen)),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(iconSize)
-                                )
+                                if (screen.isEmpty()) {
+                                    // Show your custom Composable here
+                                    CustomComposable()
+                                } else {
+                                    Image(
+                                        painterResource(id = getIconForScreen(screen)),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(iconSize)
+                                    )
+                                }
                             },
                             label = {
                                 // Use Row to prevent line breaks in the text
@@ -116,7 +142,7 @@ object HomeScreen {
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-Image(painter = painterResource(R.drawable.ic_documentscan),contentDescription = null)
+                    Image(painter = painterResource(R.drawable.ic_documentscan), contentDescription = null)
                     Text("Add your first document", textAlign = TextAlign.Center, color = Color(0xFF5E5E5E))
                 }
             }
@@ -124,16 +150,43 @@ Image(painter = painterResource(R.drawable.ic_documentscan),contentDescription =
 
         if (showCustomDialog.value) {
             Dialog(onDismissRequest = { }, properties = DialogProperties(
-                dismissOnBackPress = true,dismissOnClickOutside = true)
+                dismissOnBackPress = true, dismissOnClickOutside = true)
             ) {
-            CustomAlertDialog(
-                onDismiss = {showCustomDialog.value=false },
-                onExit = { },dismissOnBackPressed = true,dismissOnClickOutside = true,true
-            )
-        }
+                CustomAlertDialog(
+                    onDismiss = {showCustomDialog.value=false },
+                    onExit = { },dismissOnBackPressed = true,dismissOnClickOutside = true,true
+                )
+            }
         }
     }
 
+    @Composable
+    fun CustomComposable() {
+        val infiniteTransition = rememberInfiniteTransition(label = "")
+
+        val heartSize by infiniteTransition.animateFloat(
+            initialValue = 25.0f,
+            targetValue = 30.0f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(800, delayMillis = 100, easing = FastOutLinearInEasing),
+                repeatMode = RepeatMode.Reverse
+            ), label = ""
+        )
+
+        Box(
+            modifier = Modifier
+                .background(Color(0xFFA36DFF), shape = CircleShape)
+                .padding(8.dp).size(heartSize.dp)
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_add),
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier
+                    .padding(4.dp).align(Alignment.Center)
+            )
+        }
+    }
 
     private fun getIconForScreen(screen: String): Int {
         return when (screen) {
@@ -144,10 +197,6 @@ Image(painter = painterResource(R.drawable.ic_documentscan),contentDescription =
             else -> R.drawable.ic_settings
         }
     }
-
-
-
-
 
     @Composable
     fun CircularIcon(@DrawableRes iconId: Int, modifier: Modifier = Modifier) {
@@ -201,74 +250,9 @@ Image(painter = painterResource(R.drawable.ic_documentscan),contentDescription =
         RowOfCircularIcons(iconIds = iconList)
     }
 
-
-    @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class,
-        ExperimentalComposeUiApi::class
-    )
-    @Composable
-    fun SearchBarSample() {
-        val text = rememberSaveable { mutableStateOf("") }
-        val active = rememberSaveable { mutableStateOf(false) }
-
-        // Obtain the LocalSoftwareKeyboardController
-        val keyboardController = LocalSoftwareKeyboardController.current
-
-        Row  (
-            Modifier
-                .fillMaxWidth().size(80.dp)
-                .semantics { isTraversalGroup = true }
-                .background(Color.White)
-        ) {
-            SearchBar(
-                modifier = Modifier
-                    .fillMaxWidth(0.8f)
-                    .padding(10.dp)
-                    .align(Alignment.CenterVertically)
-                    .semantics { traversalIndex = -1f },
-                query = text.value, colors = SearchBarDefaults.colors(Color(0xFFF6F6F6),Color(0xFFF6F6F6)),
-                onQueryChange = { newText ->
-                    text.value = newText
-
-                    // Handle the search action when the text is not empty
-                    if (newText.isNotEmpty()) {
-                        // Perform search action or any other relevant action here
-                        // ...
-
-                        // Clear focus and hide the keyboard
-                        keyboardController?.hide()
-                    }
-                },
-                onSearch = {
-                    // Handle the search action when the search icon is clicked
-                    // ...
-
-                    // Clear focus and hide the keyboard
-                    keyboardController?.hide()
-                },
-                active = active.value,
-                onActiveChange = {
-                    active.value = it
-                    // Show or hide the keyboard based on the search bar's active state
-                    if (it) {
-                        //   keyboardController?.show()
-                    } else {
-                        keyboardController?.hide()
-                    }
-                },
-                placeholder = { Text("Search") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                trailingIcon = { Icon(Icons.Default.MoreVert, contentDescription = null) },
-            ) {}
-
-            Icon(painter = painterResource(R.drawable.ic_crown),contentDescription = null, modifier = Modifier.align(Alignment.CenterVertically).padding(2.dp))
-            Icon(painter = painterResource(R.drawable.ic_scanner),contentDescription = null, modifier = Modifier.align(Alignment.CenterVertically).padding(2.dp))
-        }
-    }
-
-
-
     @Composable
     fun RecentFiles() {
+        val navigator= LocalNavigator.currentOrThrow
         Row(
             modifier = Modifier
                 .fillMaxWidth().background(color = Color.White).padding(10.dp)
@@ -284,12 +268,25 @@ Image(painter = painterResource(R.drawable.ic_documentscan),contentDescription =
                 "View All",
                 modifier = Modifier
                     .padding(start = 10.dp).clickable {
-
+navigator.push(ViewAllScreen())
                     },
                 textAlign = TextAlign.End,
                 color = Color(0xFFBF9AFE),
                 textDecoration = TextDecoration.Underline
             )
         }
+    }
+@Composable
+    override fun Content() {
+    Column {
+        Row(modifier = Modifier.background(Color.White).align(Alignment.CenterHorizontally).padding(5.dp)) {
+            Utils.SearchBar()
+            Icon(painterResource(R.drawable.ic_crown),contentDescription = null, modifier = Modifier.align(Alignment.CenterVertically).padding(2.dp))
+            Icon(painterResource(R.drawable.ic_scanner),contentDescription = null,modifier = Modifier.align(Alignment.CenterVertically).padding(2.dp))
+        }
+        Tools()
+        RecentFiles()
+        BottomNav()
+    }
     }
 }

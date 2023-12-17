@@ -5,6 +5,8 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,15 +33,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.myapplication.documents.FetchDocuments
 import com.myapplication.R
+import com.myapplication.Utils
 import com.myapplication.model.DocumentModel
 
-class ViewAllScreen {
+class ViewAllScreen:Screen {
     companion object{
         @RequiresApi(Build.VERSION_CODES.R)
         @Composable
@@ -47,13 +54,13 @@ class ViewAllScreen {
             val list= remember { mutableStateListOf<DocumentModel>() }
             FetchDocuments.fetchPdfFiles(context, list)
 
-            LazyColumn(modifier = Modifier.fillMaxWidth().padding(10.dp).background(Color.White)) {
+            LazyColumn(modifier = Modifier.fillMaxWidth().padding(5.dp).background(Color.White)) {
                 items(list.size){item->
                     val name= remember { mutableStateOf(list[item].name) }
                     val date= remember { mutableStateOf(list[item].date) }
-                    Card(modifier = Modifier.padding(10.dp).fillMaxWidth(), border = BorderStroke(1.dp, Color.Black)) {
-                        Row {
-                            Icon(painter = painterResource(R.drawable.ic_gallery),contentDescription = null, modifier = Modifier.padding(5.dp).size(20.dp))
+                    Card(modifier = Modifier.padding(5.dp).padding(top = 5.dp).padding(bottom = 5.dp).fillMaxWidth()) {
+                        Row() {
+                            Icon(painter = painterResource(R.drawable.ic_pdf),contentDescription = null, modifier = Modifier.padding(5.dp).size(20.dp).align(Alignment.CenterVertically))
                             Column {
                                 Text(name.value, modifier = Modifier, color = Color.Black, fontWeight = FontWeight.Bold)
                                 Text("12 pages | ${date.value}")
@@ -64,9 +71,11 @@ class ViewAllScreen {
             }
         }
 
+
         @RequiresApi(Build.VERSION_CODES.R)
         @Composable
         fun TopBar(context: Context) {
+            val navigator= LocalNavigator.currentOrThrow
             Column {
                 Box(
                     modifier = Modifier
@@ -87,7 +96,9 @@ class ViewAllScreen {
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_backarrow),
-                                contentDescription = null
+                                contentDescription = null, modifier = Modifier.clickable {
+                                    navigator.push(HomeScreen())
+                                }
                             )
                             Text("All", color = Color(0xFF0D0D0D))
                         }
@@ -100,44 +111,12 @@ class ViewAllScreen {
                 FetchFilesData(context)
             }
         }
-
-        @Composable
-        fun SearchBar(
-            modifier: Modifier = Modifier
-        ) {
-            val searchText = remember { mutableStateOf("") }
-
-            TextField(
-                value = searchText.value,
-                onValueChange = { text ->
-                    searchText.value = text
-                    // Add any additional logic here if needed
-                },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = null
-                    )
-                },
-                colors = TextFieldDefaults.textFieldColors(
-                    backgroundColor = Color(0xFFF6F6F6), // #F6F6F6
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    cursorColor = Color.Black,
-                    textColor = Color.Black
-                ),
-                placeholder = {
-                    Text("Search")
-                },
-                shape = RoundedCornerShape(16.dp), // Adjust the corner radius as needed
-                modifier = modifier
-                    .heightIn(min = 56.dp)
-            )
-        }
-
-
-
     }
-
+@RequiresApi(Build.VERSION_CODES.R)
+@Composable
+    override fun Content() {
+    val context= LocalContext.current
+ TopBar(context)
+    }
 
 }

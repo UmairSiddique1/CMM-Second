@@ -1,5 +1,6 @@
 package com.myapplication
 
+import MainView
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -15,28 +16,30 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.core.app.ActivityCompat
+import cafe.adriel.voyager.navigator.Navigator
 import com.myapplication.screens.HomeScreen
+import ScreenA
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import cafe.adriel.voyager.transitions.SlideTransition
+import com.myapplication.screens.CameraScreen
 import com.myapplication.screens.ViewAllScreen
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(){
     private val STORAGE_PERMISSION_CODE = 23
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
-            Column {
-//                HomeScreen.SearchBarSample()
-//                HomeScreen.Tools()
-//                HomeScreen.RecentFiles()
-//                HomeScreen.BottomNav()
-//                SearchScreen.SearchScreenLayout()
-
-               ViewAllScreen.TopBar(applicationContext                       )
+//HomeScreen.HomeScreenLayout()
+            Navigator(HomeScreen()){navigator ->
+                SlideTransition(navigator=navigator)
             }
-//requestForStoragePermissions()
         }
+        requestForStoragePermissions()
     }
     private val storageActivityResultLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(
@@ -63,8 +66,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-    @Composable
-    private fun RequestForStoragePermissions() {
+
+    private fun requestForStoragePermissions(){
+
         //Android is 11 (R) or above
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
 
@@ -73,9 +77,7 @@ class MainActivity : AppCompatActivity() {
              }
                 else{
                     Toast.makeText(applicationContext,"Storage Permission granted",Toast.LENGTH_SHORT).show()
-                 ViewAllScreen.FetchFilesData(applicationContext)
              }
-
         } else {
             //Below android 11
             ActivityCompat.requestPermissions(
