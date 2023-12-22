@@ -115,7 +115,7 @@ object CameraxFile {
                     .fillMaxSize()
                     .background(Color.Black)
             ) {
-                AndroidView({ previewView }, modifier = Modifier.fillMaxHeight(0.7f).fillMaxWidth())
+                AndroidView({ previewView }, modifier = Modifier.fillMaxSize())
                 Row(modifier = Modifier.padding(5.dp).align(Alignment.TopCenter)) {
                     Text("Manual", color = Color.White)
                     Icon(painter = painterResource(R.drawable.ic_autoarrow),contentDescription = null

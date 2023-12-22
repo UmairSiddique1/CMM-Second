@@ -18,13 +18,13 @@ kotlin {
                 implementation ("androidx.camera:camera-lifecycle:$camerax_version")
                 implementation ("androidx.camera:camera-view:1.4.0-alpha02")
                 implementation ("io.coil-kt:coil-compose:2.5.0")
-                    implementation("com.vanniktech:android-image-cropper:4.5.0")
+                implementation ("io.github.farimarwat:documentscanner:1.1")
+
                 implementation("cafe.adriel.voyager:voyager-navigator:$voyagerVersion")
                 // Allows us to use tab navigation for the bottom bar
                 implementation("cafe.adriel.voyager:voyager-tab-navigator:$voyagerVersion")
                 // Support for transition animations
                 implementation("cafe.adriel.voyager:voyager-transitions:$voyagerVersion")
-
             }
         }
     }
@@ -44,10 +44,10 @@ android {
         versionName = "1.0"
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_18
+        targetCompatibility = JavaVersion.VERSION_18
     }
     kotlin {
-        jvmToolchain(17)
+        jvmToolchain(18)
     }
 }

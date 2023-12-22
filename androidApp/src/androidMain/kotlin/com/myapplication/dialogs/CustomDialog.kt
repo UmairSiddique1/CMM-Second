@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogWindowProvider
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.myapplication.ScanActivity
 import com.myapplication.screens.CameraScreen
 
 object CustomDialog {
@@ -67,6 +68,7 @@ object CustomDialog {
                 detectTapGestures {
                     if (text.isNotEmpty() && text == "Camera") {
                         context.startActivity(Intent(context, CameraScreen::class.java))
+//                        context.startActivity(Intent(context,ScanActivity::class.java))
                     } else if (text.isNotEmpty() && text == "Gallery") {
                         launcher.launch("image/*")
                     }

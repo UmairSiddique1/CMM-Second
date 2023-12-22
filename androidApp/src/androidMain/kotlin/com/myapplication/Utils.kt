@@ -1,6 +1,8 @@
 package com.myapplication
 
+import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
@@ -55,6 +57,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import coil.compose.rememberAsyncImagePainter
+import java.io.FileNotFoundException
+import java.io.IOException
+import java.io.InputStream
 
 
 object Utils {
@@ -89,5 +94,23 @@ object Utils {
                 .heightIn(min = 50.dp) // Add border stroke directly to TextField
                 .background(color = Color.White) // Set background color
         )
+    }
+    fun uriToBitmap(context: Context, uri: Uri): Bitmap? {
+        var inputStream: InputStream? = null
+        try {
+            inputStream = context.contentResolver.openInputStream(uri)
+            if (inputStream != null) {
+                return BitmapFactory.decodeStream(inputStream)
+            }
+        } catch (e: FileNotFoundException) {
+            e.printStackTrace()
+        } finally {
+            try {
+                inputStream?.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+        return null
     }
 }

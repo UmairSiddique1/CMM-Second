@@ -32,7 +32,6 @@ class MainActivity : AppCompatActivity(){
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContent {
 //HomeScreen.HomeScreenLayout()
             Navigator(HomeScreen()){navigator ->

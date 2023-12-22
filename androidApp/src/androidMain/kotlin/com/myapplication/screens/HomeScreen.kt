@@ -3,14 +3,9 @@ package com.myapplication.screens
 import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.annotation.DrawableRes
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -27,40 +22,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SearchBar
-import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.isTraversalGroup
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -73,7 +48,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.myapplication.R
 import com.myapplication.Utils
 import com.myapplication.dialogs.CustomDialog.CustomAlertDialog
-import kotlinx.coroutines.delay
+
 class HomeScreen:Screen {
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     @Composable
@@ -82,7 +57,7 @@ class HomeScreen:Screen {
         val selectedScreen = remember { mutableStateOf(screens.first()) }
         val context= LocalContext.current
         val showCustomDialog= remember { mutableStateOf(false) }
-
+val navigation= LocalNavigator.currentOrThrow
         // Create a function to show a toast
         fun showToast(screen: String) {
             Toast.makeText(context, "Clicked on $screen", Toast.LENGTH_SHORT).show()
@@ -100,7 +75,7 @@ class HomeScreen:Screen {
                                 val iconSize = if (screen.isEmpty()) 58.dp else 20.dp
                                 if (screen.isEmpty()) {
                                     // Show your custom Composable here
-                                    CustomComposable()
+                                    AnimationComposable()
                                 } else {
                                     Image(
                                         painterResource(id = getIconForScreen(screen)),
@@ -129,6 +104,9 @@ class HomeScreen:Screen {
                                 showToast(screen)
                                 if(screen.isEmpty()){
                                     showCustomDialog.value=!showCustomDialog.value
+                                }
+                                if(screen=="Tools"){
+                                    navigation.push(ToolScreen)
                                 }
                             },
                             modifier = Modifier.padding(5.dp)
@@ -161,7 +139,7 @@ class HomeScreen:Screen {
     }
 
     @Composable
-    fun CustomComposable() {
+    fun AnimationComposable() {
         val infiniteTransition = rememberInfiniteTransition(label = "")
 
         val heartSize by infiniteTransition.animateFloat(

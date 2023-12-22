@@ -33,6 +33,24 @@
 
 
         </activity>
+        <activity
+            android:name=".ScanActivity"
+            android:label="My App"
+            android:exported="true">
+
+            <!-- Add the intent filter to mark it as the main activity -->
+
+
+        </activity>
+        <activity
+            android:name=".CropImage"
+            android:label="My App"
+            android:exported="true">
+
+            <!-- Add the intent filter to mark it as the main activity -->
+
+
+        </activity>
     </application>
 
 </manifest>
