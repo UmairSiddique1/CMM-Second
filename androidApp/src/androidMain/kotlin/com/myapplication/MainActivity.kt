@@ -1,5 +1,6 @@
 package com.myapplication
 
+import App
 import MainView
 import android.content.Intent
 import android.net.Uri
@@ -37,6 +38,7 @@ class MainActivity : AppCompatActivity(){
             Navigator(HomeScreen()){navigator ->
                 SlideTransition(navigator=navigator)
             }
+//            App()
         }
         requestForStoragePermissions()
     }

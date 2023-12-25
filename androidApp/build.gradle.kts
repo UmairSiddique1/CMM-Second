@@ -25,6 +25,8 @@ kotlin {
                 implementation("cafe.adriel.voyager:voyager-tab-navigator:$voyagerVersion")
                 // Support for transition animations
                 implementation("cafe.adriel.voyager:voyager-transitions:$voyagerVersion")
+
+                implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
             }
         }
     }

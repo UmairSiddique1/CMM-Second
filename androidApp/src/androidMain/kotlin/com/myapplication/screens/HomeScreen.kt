@@ -3,12 +3,15 @@ package com.myapplication.screens
 import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,6 +19,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -28,12 +32,18 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PaintingStyle.Companion.Stroke
+import androidx.compose.ui.graphics.drawscope.DrawStyle
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -75,7 +85,8 @@ val navigation= LocalNavigator.currentOrThrow
                                 val iconSize = if (screen.isEmpty()) 58.dp else 20.dp
                                 if (screen.isEmpty()) {
                                     // Show your custom Composable here
-                                    AnimationComposable()
+//                                    AnimationComposable()
+                                    LightPurpleCircleAnimation()
                                 } else {
                                     Image(
                                         painterResource(id = getIconForScreen(screen)),
@@ -165,6 +176,48 @@ val navigation= LocalNavigator.currentOrThrow
             )
         }
     }
+
+    @Composable
+    fun LightPurpleCircleAnimation() {
+        val infiniteTransition = rememberInfiniteTransition()
+        val circleSize by infiniteTransition.animateFloat(
+            initialValue = 25.0f,
+            targetValue = 30.0f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(800, delayMillis = 100, easing = FastOutLinearInEasing),
+                repeatMode = RepeatMode.Reverse
+            )
+        )
+
+        Box(contentAlignment = Alignment.Center) {
+            // Animated Box
+            Box(
+                modifier = Modifier
+                    .background(Color(0xFFCBC3E3), shape = CircleShape)
+                    .padding(8.dp).size(circleSize.dp)
+            )
+
+            Spacer(modifier = Modifier.padding(1.dp))
+
+            // Stationary Box with Icon
+            Box(
+                modifier = Modifier
+                    .background(Color(0xFFA36DFF), shape = CircleShape)
+                    .padding(8.dp).size(25.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_add),
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier
+                        .padding(4.dp).align(Alignment.Center)
+                )
+            }
+        }
+    }
+
+
+
 
     private fun getIconForScreen(screen: String): Int {
         return when (screen) {
@@ -257,10 +310,10 @@ navigator.push(ViewAllScreen())
 @Composable
     override fun Content() {
     Column {
-        Row(modifier = Modifier.background(Color.White).align(Alignment.CenterHorizontally).padding(5.dp)) {
-            Utils.SearchBar()
-            Icon(painterResource(R.drawable.ic_crown),contentDescription = null, modifier = Modifier.align(Alignment.CenterVertically).padding(2.dp))
-            Icon(painterResource(R.drawable.ic_scanner),contentDescription = null,modifier = Modifier.align(Alignment.CenterVertically).padding(2.dp))
+        Row(modifier = Modifier.background(Color.White).align(Alignment.Start).padding(10.dp)) {
+            Utils.SearchBarSample()
+            Icon(painterResource(R.drawable.ic_crown),contentDescription = null, modifier = Modifier.align(Alignment.CenterVertically).padding(10.dp))
+            Icon(painterResource(R.drawable.ic_scanner),contentDescription = null,modifier = Modifier.align(Alignment.CenterVertically).padding(10.dp))
         }
         Tools()
         RecentFiles()

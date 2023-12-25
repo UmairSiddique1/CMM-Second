@@ -2,6 +2,7 @@ plugins {
     kotlin("multiplatform")
     id("com.android.library")
     id("org.jetbrains.compose")
+//    id("dev.icerock.mobile.multiplatform-resources")
     kotlin("plugin.serialization") version "1.9.21"
 }
 
@@ -16,6 +17,8 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "shared"
             isStatic = true
+//            export("dev.icerock.moko:resources:0.23.0")
+//            export("dev.icerock.moko:graphics:0.9.0") // toUIColor here
         }
     }
 
@@ -35,6 +38,9 @@ kotlin {
                 implementation("cafe.adriel.voyager:voyager-tab-navigator:$voyagerVersion")
                 // Support for transition animations
                 implementation("cafe.adriel.voyager:voyager-transitions:$voyagerVersion")
+                kotlin("org.jetbrains.kotlin:kotlin-multiplatform-mobile:1.2.1")
+//                api("dev.icerock.moko:resources:0.23.0")
+//                api("dev.icerock.moko:resources-compose:0.23.0")
             } }
 
         val androidMain by getting {
@@ -42,10 +48,9 @@ kotlin {
                 api("androidx.activity:activity-compose:1.7.2")
                 api("androidx.appcompat:appcompat:1.6.1")
                 api("androidx.core:core-ktx:1.10.1")
-
-
             }
         }
+
         val iosX64Main by getting
         val iosArm64Main by getting
         val iosSimulatorArm64Main by getting
@@ -77,3 +82,7 @@ android {
         jvmToolchain(17)
     }
 }
+//multiplatformResources {
+//    multiplatformResourcesPackage = "com.myapplication.cmm.sharingresources" // required
+//    multiplatformResourcesClassName = "SharedRes" // optional, default MR
+//}

@@ -1,3 +1,13 @@
+//buildscript {
+//    repositories {
+//        gradlePluginPortal()
+//    }
+//    dependencies{
+//        classpath ("dev.icerock.moko:resources-generator:0.23.0")
+//    }
+//}
+
+
 plugins {
     // this is necessary to avoid the plugins to be loaded multiple times
     // in each subproject's classloader

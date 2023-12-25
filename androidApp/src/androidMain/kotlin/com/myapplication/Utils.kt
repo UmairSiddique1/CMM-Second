@@ -7,6 +7,7 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.service.autofill.OnClickAction
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -16,8 +17,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,6 +29,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -56,6 +60,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import coil.compose.rememberAsyncImagePainter
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -64,37 +70,38 @@ import java.io.InputStream
 
 object Utils {
     @Composable
-    fun SearchBar() {
-        val searchText = remember { mutableStateOf("") }
-
-        TextField(
-            value = searchText.value,
-            onValueChange = { text ->
-                searchText.value = text
-                // Add any additional logic here if needed
-            },
-            leadingIcon = {
+    fun SearchBarSample() {
+        val navigation = LocalNavigator.currentOrThrow
+        val interactionSource = remember { MutableInteractionSource() }
+        // Use Box composable with clickable modifier for navigation
+        Box(
+            contentAlignment = Alignment.CenterStart, // Align the content to the start
+            modifier = Modifier
+                .clickable (interactionSource=interactionSource,
+                    indication = null, onClick = {
+                        navigation.push(SearchScreen)
+                    })
+                .background(Color(0xFFF6F6F6), RoundedCornerShape(100.dp)) // Set background and shape
+                .border(BorderStroke(1.dp, Color.Black), RoundedCornerShape(100.dp)) // Set border
+                .heightIn(min = 45.dp)
+                .padding(horizontal = 16.dp).width(220.dp) // Add horizontal padding
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically // Align items in the row vertically
+            ) {
                 Icon(
                     imageVector = Icons.Default.Search,
-                    contentDescription = null
+                    contentDescription = "Search Icon",
+                    tint = Color.Black // Set the color of the icon
                 )
-            },
-            colors = TextFieldDefaults.textFieldColors(
-                backgroundColor = Color(0xFFF6F6F6), // Set background color to white
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                cursorColor = Color.Black,
-                textColor = Color.Black
-            ),
-            placeholder = {
-                Text("Search")
-            },
-            shape = RoundedCornerShape(100.dp), // Add rounded corners
-            modifier = Modifier
-                .heightIn(min = 50.dp) // Add border stroke directly to TextField
-                .background(color = Color.White) // Set background color
-        )
+                Spacer(Modifier.width(8.dp)) // Add space between the icon and the text
+                Text("Search", color = Color.Black) // Simple text as hint
+            }
+        }
     }
+
+
+
     fun uriToBitmap(context: Context, uri: Uri): Bitmap? {
         var inputStream: InputStream? = null
         try {
