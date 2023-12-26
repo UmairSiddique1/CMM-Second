@@ -119,6 +119,9 @@ val navigation= LocalNavigator.currentOrThrow
                                 if(screen=="Tools"){
                                     navigation.push(ToolScreen)
                                 }
+                                if(screen=="Docs"){
+                                    navigation.push(DocsScreen())
+                                }
                             },
                             modifier = Modifier.padding(5.dp)
                         )

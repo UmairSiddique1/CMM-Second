@@ -63,6 +63,8 @@ object SearchScreen:Screen {
     @RequiresApi(Build.VERSION_CODES.R)
     @Composable
     fun SearchScreenLayout(){
+        val context= LocalContext.current
+
         Row(horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(10.dp)) {
             Icon(painter = painterResource(R.drawable.ic_backarrow),contentDescription = null,
@@ -70,45 +72,7 @@ object SearchScreen:Screen {
             SearchBar()
         }
     }
-//    @Composable
-//    fun SearchBar() {
-//        val searchText = remember { mutableStateOf("") }
-//        val focusRequester = remember { FocusRequester() }
-//
-//        LaunchedEffect(Unit) {
-//            focusRequester.requestFocus()
-//        }
-//
-//        TextField(
-//            value = searchText.value,
-//            onValueChange = { text ->
-//                searchText.value = text
-//                // Add any additional logic here if needed
-//            },
-//            leadingIcon = {
-//                Icon(
-//                    imageVector = Icons.Default.Search,
-//                    contentDescription = null
-//                )
-//            },
-//            colors = TextFieldDefaults.textFieldColors(
-//                backgroundColor = Color(0xFFF6F6F6), // Set background color to white
-//                focusedIndicatorColor = Color.Transparent,
-//                unfocusedIndicatorColor = Color.Transparent,
-//                cursorColor = Color.Black,
-//                textColor = Color.Black
-//            ),
-//            placeholder = {
-//                Text("Search")
-//            },
-//            shape = RoundedCornerShape(100.dp), // Add rounded corners
-//            modifier = Modifier
-//                .border(BorderStroke(1.dp, Color.Black), shape = RoundedCornerShape(100.dp))
-//                .heightIn(min = 45.dp) // Add border stroke directly to TextField
-//                .background(color = Color.White) // Set background color
-//                .focusRequester(focusRequester) // Attach the FocusRequester to the TextField
-//        )
-//    }
+
 @RequiresApi(Build.VERSION_CODES.R)
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -117,7 +81,7 @@ fun SearchBar() {
     val searchText = remember { mutableStateOf("") }
     val documentList= remember {mutableStateListOf<DocumentModel>()}
     documentList.clear()
-
+//
     FetchDocuments.fetchPdfFiles(context,documentList)
    val filteredSuggestions:MutableList<DocumentModel> = documentList.filter {
        it.name.contains(searchText.value,ignoreCase = true)

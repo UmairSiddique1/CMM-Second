@@ -54,21 +54,8 @@ class ViewAllScreen:Screen {
             val list= remember { mutableStateListOf<DocumentModel>() }
             FetchDocuments.fetchPdfFiles(context, list)
 
-            LazyColumn(modifier = Modifier.fillMaxWidth().padding(5.dp).background(Color.White)) {
-                items(list.size){item->
-                    val name= remember { mutableStateOf(list[item].name) }
-                    val date= remember { mutableStateOf(list[item].date) }
-                    Card(modifier = Modifier.padding(5.dp).padding(top = 5.dp).padding(bottom = 5.dp).fillMaxWidth()) {
-                        Row() {
-                            Icon(painter = painterResource(R.drawable.ic_pdf),contentDescription = null, modifier = Modifier.padding(5.dp).size(20.dp).align(Alignment.CenterVertically))
-                            Column {
-                                Text(name.value, modifier = Modifier, color = Color.Black, fontWeight = FontWeight.Bold)
-                                Text("12 pages | ${date.value}")
-                            }
-                        }
-                    }
-                }
-            }
+
+            FilesLayout(list)
         }
 
 
@@ -111,6 +98,25 @@ class ViewAllScreen:Screen {
                 FetchFilesData(context)
             }
         }
+
+        @Composable
+        fun FilesLayout(list:MutableList<DocumentModel>){
+            LazyColumn(modifier = Modifier.fillMaxWidth().padding(5.dp).background(Color.White)) {
+                items(list.size){item->
+                    val name= remember { mutableStateOf(list[item].name) }
+                    val date= remember { mutableStateOf(list[item].date) }
+                    Card(modifier = Modifier.padding(5.dp).padding(top = 5.dp).padding(bottom = 5.dp).fillMaxWidth()) {
+                        Row() {
+                            Icon(painter = painterResource(R.drawable.ic_pdf),contentDescription = null, modifier = Modifier.padding(5.dp).size(20.dp).align(Alignment.CenterVertically))
+                            Column {
+                                Text(name.value, modifier = Modifier, color = Color.Black, fontWeight = FontWeight.Bold)
+                                Text("12 pages | ${date.value}")
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 @RequiresApi(Build.VERSION_CODES.R)
 @Composable
@@ -118,5 +124,4 @@ class ViewAllScreen:Screen {
     val context= LocalContext.current
  TopBar(context)
     }
-
 }
