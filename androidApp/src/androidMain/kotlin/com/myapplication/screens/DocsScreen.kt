@@ -1,12 +1,16 @@
 package com.myapplication.screens
 
+import android.app.Activity
+import android.graphics.Rect
 import android.os.Build
+import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,6 +32,7 @@ import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
@@ -40,7 +45,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import com.myapplication.R
@@ -54,12 +62,15 @@ class DocsScreen:Screen {
 DocsScreenLayout()
     }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @RequiresApi(Build.VERSION_CODES.R)
 @Composable
 fun DocsScreenLayout(){
     val selectedOption = remember { mutableStateOf("All") }
     val selectedMimeType = remember { mutableStateOf("") }
-    val context= LocalContext.current
+    val context = LocalContext.current
+    // Create a focus requester to handle keyboard focus
+    val focusRequester = remember { FocusRequester() }
     val searchQuery = remember { mutableStateOf("") }
     val list= remember {mutableStateListOf<DocumentModel>()}
     val filteredList = list.filter {
@@ -67,12 +78,20 @@ fun DocsScreenLayout(){
         it.name.contains(searchQuery.value, ignoreCase = true)
     }
 
+
     LaunchedEffect(selectedMimeType.value) {
         list.clear()
         FetchDocuments.fetchFiles(context, list, mimeType = selectedMimeType.value, R.drawable.ic_pdf)
     }
+
     Column (modifier = Modifier.fillMaxSize().background(Color.White)){
-        SearchBar(searchQuery)
+        Row (horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically){
+            SearchBar(searchQuery,focusRequester)
+            Icon(painter = painterResource(R.drawable.ic_grid),contentDescription = null)
+            Icon(painter = painterResource(R.drawable.ic_crown),contentDescription = null)
+        }
+
+
         Row(modifier = Modifier.background(Color.White)) {
             FilterLayout("All", selectedOption.value) { selectedOption.value = "All"
                 selectedMimeType.value = ""}
@@ -85,10 +104,15 @@ fun DocsScreenLayout(){
             FilterLayout("Text", selectedOption.value) { selectedOption .value= "Text"
                 selectedMimeType.value = "text/plain"}
         }
-
-        ViewAllScreen.FilesLayout(filteredList.toMutableList())
+if(searchQuery.value.isEmpty()){
+    ViewAllScreen.FilesLayout(list)
+}
+else{
+    ViewAllScreen.FilesLayout(filteredList.toMutableList())
+}
     }
 }
+
     @Composable
     fun FilterLayout(text: String, selectedOption: String, onSelect: () -> Unit) {
         val isSelected = text == selectedOption
@@ -109,93 +133,28 @@ fun DocsScreenLayout(){
         }
     }
 
+
     @Composable
-    fun SearchBar(searchQuery: MutableState<String>) {
-        OutlinedTextField(
+    fun SearchBar(searchQuery: MutableState<String>, focusRequester: FocusRequester) {
+        TextField(
             value = searchQuery.value,
             onValueChange = { searchQuery.value = it },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search"
+                )
+            },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
-            label = { Text("Search") },
-            singleLine = true
+                .padding(end = 100.dp)
+                .heightIn(min = 40.dp)
+                .background(Color(0xFFF6F6F6), shape = RoundedCornerShape(100.dp)) // Apply background color with rounded corners
+                .border(1.dp, Color.Black, shape = RoundedCornerShape(100.dp)), // Apply border with rounded corners
+
+            placeholder = { Text("Search") }
         )
     }
 
-//    @RequiresApi(Build.VERSION_CODES.R)
-//    @Composable
-//    fun SearchBar(mimeType:String,iconRes:Int) {
-//        val context= LocalContext.current
-//        val searchText = remember { mutableStateOf("") }
-//        val documentList= remember { mutableStateListOf<DocumentModel>() }
-//        documentList.clear()
-//
-//        FetchDocuments.fetchFiles(context,documentList,mimeType,iconRes)
-//
-//        val filteredSuggestions:MutableList<DocumentModel> = documentList.filter {
-//            it.name.contains(searchText.value,ignoreCase = true)
-//        }.toMutableList()
-//
-//        val expanded = remember { mutableStateOf(false) }
-//        val focusRequester = FocusRequester()
-//        LaunchedEffect(Unit){
-//            focusRequester.requestFocus()
-//        }
-//        Column {
-//            TextField(
-//                value = searchText.value,
-//                onValueChange = { text ->
-//                    searchText.value = text
-//                    expanded.value = text.isNotEmpty() && filteredSuggestions.isNotEmpty()
-//                },
-//                leadingIcon = {
-//                    Icon(
-//                        imageVector = Icons.Default.Search,
-//                        contentDescription = "Search"
-//                    )
-//                },
-//                colors = TextFieldDefaults.textFieldColors(
-//                    backgroundColor = Color(0xFFF6F6F6),
-//                    focusedIndicatorColor = Color.Transparent,
-//                    unfocusedIndicatorColor = Color.Transparent,
-//                    cursorColor = Color.Black,
-//                    textColor = Color.Black
-//                ),
-//                placeholder = {
-//                    Text("Search")
-//                },
-//                shape = RoundedCornerShape(100.dp),
-//                modifier = Modifier
-//                    .border(BorderStroke(1.dp, Color.Black), shape = RoundedCornerShape(100.dp))
-//                    .heightIn(min = 45.dp)
-//                    .fillMaxWidth()
-//                    .focusRequester(focusRequester)
-//            )
-////            if (expanded.value && filteredSuggestions.isNotEmpty()) {
-////                LazyColumn(modifier = Modifier
-////                    .fillMaxWidth()
-////                    .border(BorderStroke(1.dp, Color.Transparent), shape = RoundedCornerShape(100.dp))) {
-////                    items(filteredSuggestions.size) { suggestion ->
-////                        Text(
-////                            text = filteredSuggestions[suggestion].name.toString(),
-////                            modifier = Modifier
-////                                .padding(10.dp)
-////                                .clickable {
-////                                    searchText.value = filteredSuggestions[suggestion].name
-////                                    expanded.value = false // Request focus when an item is selected
-////                                }
-////                        )
-////                    }
-////                }
-////
-////            } else if (searchText.value.isNotEmpty() &&!expanded.value && filteredSuggestions.isEmpty()) {
-////                Box(modifier = Modifier
-////                    .fillMaxWidth()
-////                    .padding(16.dp),
-////                    contentAlignment = Alignment.Center) {
-////                    Text("No suggestions available", style = MaterialTheme.typography.body1)
-////                }
-////            }
-//        }
-//    }
+
 }
